@@ -1,0 +1,225 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model PaymentInformationModel
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewData["Title"] = "Thanh toán";
+    string userId = string.Empty;
+    if (SignInManager.IsSignedIn(User))
+    {
+        userId = UserManager.GetUserId(User);
+    }
+    var cartItem = ViewBag.CartItem as List<CartItem>;
+}
+
+<!-- Checkout Start -->
+
+<div class="container-fluid pt-5">
+    <form id="formCheckout" class="row px-xl-5">
+        <div class="col-lg-6">
+            <div class="mb-4">
+                <h4 class="font-weight-semi-bold mb-4">Thông tin người nhận</h4>
+                <div class="row">
+                    @Html.Hidden("userId", userId)
+                    <div class="col-md-12 form-group">
+                        <label class="font-weight-bold">Tên</label>
+                        <input asp-for="Name" class="form-control" placeholder="Nguyễn Văn A">
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label class="font-weight-bold">Email</label>
+                        <input asp-for="Email" class="form-control" placeholder="vidu@email.com">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label class="font-weight-bold">Số điện thoại</label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="+123 456 789">
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label class="font-weight-bold">Địa chỉ</label>
+                        <input asp-for="Address" class="form-control" placeholder="123 Đường A, Phường B, Thành phố C">
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label class="font-weight-bold">Nội dung thanh toán</label>
+                        <input asp-for="Description" class="form-control" placeholder="">
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-secondary mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0">Sản phẩm</h4>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover text-center mb-0">
+                        <thead class="text-dark">
+                            <tr>
+                                <th>Tên</th>
+                                <th>Đơn giá</th>
+                                <th>SL</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(var item in cartItem)
+                            {
+                                <tr class="orderItem" data-productId="@item.product.Id">
+                                    <td class="productName">@item.product.ProductName <span class="badge badge-secondary">@item.product.Name</span></td>
+                                    <td class="unitPrice">@item.product.CurrentPrice</td>
+                                    <td class="quantity">@item.quantity</td>
+                                    <td class="subtotal">@(item.product.CurrentPrice * item.quantity)</td>
+                                 </tr>
+                               
+                            }
+                            
+                        </tbody>
+                        <tfoot class="card-footer border-secondary bg-transparent">
+                            <tr>
+                                <td colspan="3">
+                                    <h6 class="font-weight-medium">Phí giao hàng</h6>
+                                </td>
+                                <td>
+                                    <h6 class="font-weight-medium">30000</h6>
+                                </td>
+                            </tr>
+                            <tr>
+                                
+                                <td colspan="3">
+                                    <h5 class="font-weight-bold">Tổng </h5>
+                                </td>
+                                <td>
+                                    <h5 id="total" class="font-weight-bold">@(cartItem.Sum(item => item.product.CurrentPrice*item.quantity)+30000)</h5>
+                                </td>
+                            </tr>
+
+                        </tfoot>
+                    </table>
+                      
+                    
+                </div>
+            </div>
+            <div class="card border-secondary mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0">Phương thức thanh toán</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" name="payment" id="VnPay" checked value="VnPay">
+                            <label class="custom-control-label" for="VnPay">VnPay</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" name="payment" id="COD" value="COD">
+                            <label class="custom-control-label" for="COD">COD</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" name="payment" id="Momo" value="Momo">
+                            <label class="custom-control-label" for="Momo">Momo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer border-secondary bg-transparent">
+                    <input id="btnSubmit" type="submit" value="Đặt hàng" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Checkout End -->
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+<script>
+    $('#formCheckout').submit(function (e) {
+        $('#btnSubmit').attr('disabled', true);
+        e.preventDefault();
+        if ($(this).valid()) {
+            let name = $('#Name').val();
+            let email = $('#Email').val();
+            let phoneNumber = $('#PhoneNumber').val();
+            let address = $('#Address').val();
+            let description = $('#Description').val();
+            let paymentMethod = $('input[name="payment"]:checked').val();
+            let order = {};
+            var userId = $('#userId').val();
+            if (userId != "") {
+                order.UserId = userId;
+            }
+            order.Name = name;
+            order.Description = description;
+            order.Email = email;
+            order.PhoneNumber = phoneNumber;
+            order.Address = address;
+            order.PaymentMethod = paymentMethod;
+            order.Amount = parseInt($('#total').text());
+            console.log(order);
+            if (paymentMethod === "COD") { 
+                $.ajax({
+                    type: 'POST',
+                    url: "@Url.Action("COD", "Cart")",
+                    data: order,
+                    success: function (res) {
+                        if (res === true) {
+                            swal("OK", "Đơn hàng được đặt thành công!", "success")
+                                .then(() => {
+                                    let actionLink = "@Url.Action("Index", "Home")";
+                                    location.replace(actionLink);
+                                });
+                        }
+                        else {
+                            swal("Lỗi", "Số lượng đặt vượt quá số lượng sản phẩm hiện có. Vui lòng cập nhật lại giỏ hàng.", "warning")
+                                .then(() => {
+                                    let actionLink = "@Url.Action("Cart", "Cart")";
+                                    location.replace(actionLink);
+                                });
+                        }
+                        
+                    },
+                    complete: function () {
+                        $('#btnSubmit').removeAttr('disabled');
+                    },
+                    failure: function (response) {
+                        console.log('not ok');
+                    }
+                });
+            };
+            if (paymentMethod === "VnPay") {
+                $.ajax({
+                    type: 'POST',
+                    url: "@Url.Action("VnPay", "Cart")",
+                    data: order,
+                    success: function (res) {
+                        if (res != false) {
+                            location.replace(res);
+                        }
+                        else {
+                            swal("Lỗi", "Số lượng đặt vượt quá số lượng sản phẩm hiện có. Vui lòng cập nhật lại giỏ hàng.", "warning")
+                                .then(() => {
+                                    let actionLink = "@Url.Action("Cart", "Cart")";
+                                    location.replace(actionLink);
+                                });
+                        }          
+                    },
+                    complete: function () {
+                        $('#btnSubmit').show();
+                        $('#btnLoading').hide();
+                    },
+                    failure: function (response) {
+                        console.log('not ok');
+                    }
+                });
+            };
+        }       
+    });  
+</script>

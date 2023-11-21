@@ -1,0 +1,145 @@
+﻿@model BanPhimCanhCach.Models.Order
+
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.Id}";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Order" asp-action="Index">Đơn hàng</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">Đơn hàng #@Model.Id</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-body">
+        <div class="container mb-5 mt-3">
+            <partial name="_StatusMessage"></partial>
+            <div class="row d-flex align-items-baseline">
+                <div class="col-xl-6">
+                    <p style="color: #7e8d9f;font-size: 20px;"><strong>Đơn hàng: @Model.Id</strong></p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="col-md-12">
+                    <div class="text-center">
+                        <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">K</span>Keyholic</h1>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-xl-7">
+                        <ul class="list">
+                            <li class="text-muted">Người đặt: <span style="color:#8f8061 ;">@Model.Name</span></li>
+                            <li class="text-muted">Địa chỉ: @Model.Address</li>
+                            <li class="text-muted">SĐT: @Model.PhoneNumber</li>
+                            <li class="text-muted">Email: @Model.Email</li>
+                        </ul>
+                    </div>
+                    <div class="col-xl-5">
+                        <ul class="list">
+                            <li class="text-muted">Ngày đặt hàng: @Model.OrderDate</li>
+                            <li class="text-muted">Trạng thái: 
+                                <div class="btn-group" role="group">
+                                <button id="StatusDropDown" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @Model.Status
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="StatusDropDown">
+                                    @if (Model.Status == OrderStatus.Processing)
+                                    {
+                                        <a class="dropdown-item active" href="#">Đang xử lý</a>
+                                        <a class="dropdown-item" asp-action="UpdateOrderStatus" asp-route-id="@Model.Id" asp-route-status="@OrderStatus.Cancelled">Hủy đơn hàng</a>
+                                        <a class="dropdown-item" asp-action="UpdateOrderStatus" asp-route-id="@Model.Id" asp-route-status="@OrderStatus.Delivered">Đã hoàn thành</a>
+                                    }
+                                    else if (Model.Status == OrderStatus.Delivered)
+                                    {
+                                        <a class="dropdown-item disabled" href="#">Đang xử lý</a>
+                                        <a class="dropdown-item disabled" href="#">Hủy đơn hàng</a>
+                                        <a class="dropdown-item active" href="#">Đã hoàn thành</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item disabled" href="#">Đang xử lý</a>
+                                        <a class="dropdown-item active" href="#">Hủy đơn hàng</a>
+                                        <a class="dropdown-item disabled" href="#">Đã hoàn thành</a>
+                                    }
+                                </div>
+                            </div>
+                            </li>
+                            <li class="text-muted">P.T. Thanh toán: @Model.PaymentMethod</li>
+                            <li class="text-muted">Thanh toán:                      
+                                    <div class="btn-group" role="group">
+                                        <button id="IsPaidDropDown" type="button" @((Model.PaymentMethod == PaymentMethod.VnPay)?"disabled":"") class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                             @(Model.IsPaid?"Đã thanh toán":"Chưa thanh toán")
+                                        </button>
+                                    <div class="dropdown-menu" aria-labelledby="IsPaidDropDown">
+                                        @if (Model.IsPaid)
+                                        {
+                                            <a class="dropdown-item active" href="#">Đã thanh toán</a>
+                                            <a class="dropdown-item" asp-action="UpdatePaidStatus" asp-route-id="@Model.Id" asp-route-isPaid="false">Chưa thanh toán</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="dropdown-item" asp-action="UpdatePaidStatus" asp-route-id="@Model.Id" asp-route-isPaid="true">Đã thanh toán</a>
+                                            <a class="dropdown-item active" href="#">Chưa thanh toán</a>
+                                        }
+                                        </div>
+                                    </div>
+                            </li>                          
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                @foreach(var item in Model.OrderItems)
+                {
+                    <div class="row my-2 mx-1 justify-content-center">
+                        <div class="col-md-2 mb-4 mb-md-0">
+                            <div class="bg-image ripple rounded-5 mb-4 overflow-hidden d-block" data-ripple-color="light">
+                                <img src="@item.Product.ImgSrc" class="w-100" height="100px" alt="Ảnh sản phẩm" />
+                            </div>
+                        </div>
+                        <div class="col-md-7 mb-4 mb-md-0">
+                            <p class="fw-bold"><strong>@item.ProductName</strong>
+                                 
+                            </p>
+                            <p class="mb-1">
+                                <h6><span class="badge badge-success">@item.Product.Name</span></h6> 
+                            </p>
+                            <p>
+                                <span class="text-muted me-2">S. Lượng: </span><span>@item.Quantity</span>
+                            </p>
+                        </div>
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <h5 class="mb-2">
+                                <span class="align-middle">@(item.UnitPrice * item.Quantity)</span>
+                            </h5>
+                        </div>
+                    </div>
+
+                }
+               <hr>
+                <div class="row">
+                    <div class="col-xl-8">
+                        <p class="ms-3"><strong>Ghi chú: </strong> @Model.Description</p>
+                    </div>
+                    <div class="col-xl-3">
+                        <ul class="list-unstyled">
+                            <li class="text-muted ms-3"><span class="text-black me-4">Thành tiền: </span>@(Model.TotalAmount - 30000)</li>
+                            <li class="text-muted ms-3 mt-2"><span class="text-black me-4">Phí giao hàng: </span>30000</li>
+                        </ul>
+                        <p class="text-black float-start">
+                            <span class="text-black me-3"> Tổng: </span><span style="font-size: 25px;">@Model.TotalAmount VND</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

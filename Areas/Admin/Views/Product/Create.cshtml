@@ -1,0 +1,233 @@
+﻿@model BanPhimCanhCach.Models.CreateProductModel
+
+@{
+    ViewData["Title"] = "Thêm Bàn phím";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Product" asp-action="Index">Bàn phím</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">Thêm mới</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <form id="createForm">
+            <div class="form-group">
+                <label asp-for="Name" class="control-label font-weight-bold">Tên: </label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label font-weight-bold">Mô tả: </label>
+                <textarea id="Description" asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label font-weight-bold">
+                    <input class="form-check-input" asp-for="IsHot" /> Sản phẩm hot
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Ảnh: </label>
+                <a class="btn btn-sm btn-success" id="elfinder_button">
+                    <i class="fas fa-plus-square"></i> Thêm Ảnh
+                </a>
+                <div id="selectedImage" class="row p-2 mt-2">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Phân loại: </label>
+                <a class="btn btn-sm btn-success" href="#" data-toggle="modal" data-target="#ProductVariant">
+                    <i class="fas fa-plus-square"></i> Thêm Phân Loại
+                </a>
+                <table class="table border border-dark rounded">
+                    <thead class="thead-light">
+                    <th>Phân loại</th>
+                    <th>Giá gốc</th>
+                    <th>Giá hiện tại</th>
+                    <th>Số lượng</th>
+                    <th>Ảnh</th>
+                    <th></th>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center">
+                <input type="submit" class="btn btn-primary mb-3" value="Lưu">
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+<partial name="_AddProductVariant"></partial>
+
+@{
+    var Summernote = new BanPhimCanhCach.Models.Summernote("Description");
+}
+<partial name="_Summernote" model="Summernote"></partial>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '.btn.btn-sm.btn-danger.btnRemoveImage', function (e) {
+            e.preventDefault();
+            console.log('is clicked');
+            $(this).closest('div').remove();
+            if ($('#selectedImage').html() == ('')) {
+                $('#selectedImage').removeClass('border border-dark rounded bg-white')
+            }
+        });
+        $('#elfinder_button').on('click', function () {
+
+            $('<div id="editor" />').dialogelfinder({
+                url: "@Url.Action("Connector", "FileManager", new {area = "Files"})",
+                baseUrl: "@Url.Content("~/lib/elfinder/")",
+                lang: 'vi',
+                width: 840,
+                height: 450,
+                commandsOptions: {
+                    getfile: { multiple: true }
+                },
+                getFileCallback: function (files) {
+
+                    for (let i = 0; i < files.length; i++) {
+                        let filePath = '/contents' + files[i].path.substring(5);
+
+                        if ($('#selectedImage').html() == ('')) {
+                            $('#selectedImage').addClass('border border-dark rounded bg-white')
+                        }
+
+                        $('#selectedImage').append('<div class="m-2 imageContainer" style="position: relative; width:175px; display: inline; "><img src="' + filePath + '" width="150x" height="auto" /><a class="btn btn-sm btn-danger btnRemoveImage" style="position: absolute; top:5%; left:68%">x</a></div>');
+                    }
+
+                    $('#editor').remove(); //close the window after image is selected             
+                }
+            });
+        });
+
+        
+        $('#addVariant').on('click', function () {
+            let variant = $('#AddVariant').val();
+            let originalPrice = parseInt($('#AddOriginalPrice').val());
+            let currentPrice = parseInt($('#AddCurrentPrice').val());
+            let quantity = parseInt($('#AddQuantity').val());
+            let imgSrc = $('#AddVariantImgSrc').attr('src');
+            if (variant != '' && originalPrice > 0 && currentPrice > 0 && quantity >= 0) {
+                if (imgSrc == '') {
+                    let newRow = "<tr class='VariantData'><td class='variant'>" + variant + "</td><td class='originalPrice'>" + originalPrice + "</td><td class='currentPrice'>" + currentPrice + "</td><td class='quantity'>" + quantity + "</td><td><img src='/contents/NoImage.jpg' width='75px' height='75px' /></td><td><button type='button' class='btn btn-danger btn-sm btnRemove'>X</button></td></tr>";
+                    $('#tableBody').append(newRow);
+                }
+                else {
+                    let newRow = "<tr class='VariantData'><td class='variant'>" + variant + "</td><td class='originalPrice'>" + originalPrice + "</td><td class='currentPrice'>" + currentPrice + "</td><td class='quantity'>" + quantity + "</td><td><img src='" + imgSrc + "' width='75px' height='75px' /></td><td><button type='button' class='btn btn-danger btn-sm btnRemove'>X</button></td></tr>";
+                    $('#tableBody').append(newRow);
+                }           
+            }
+            $('#AddVariantImgSrc').attr('src', '');
+            $('#formVariant').trigger("reset");
+            
+        });
+
+        //Click to Remove Product Variant Row
+        $(document).on('click', '.btn.btn-danger.btn-sm.btnRemove', function (e) {
+            $(this).closest('tr').remove();
+        });
+
+
+
+         //Click to Add ProductVariant Image
+        $('#btnAddVariantImage').on('click', function () {
+            console.log('ok');
+                $('<div id="editor2" />').dialogelfinder({
+                    url: "@Url.Action("Connector", "FileManager", new {area = "Files"})",
+                    baseUrl: "@Url.Content("~/lib/elfinder/")",
+                    lang: 'vi',
+                    width: 840,
+                    height: 450,
+                    modal: true,
+                    getFileCallback: function (file) {
+                        let filePath = '';
+                        if (jQuery.type(file) == 'object') {
+                            filePath = '/contents' + file.path.substr(5);
+                            console.log(filePath);
+                        }
+                        else {
+                        filePath = '/contents' + file[0].path.substr(5);
+                        console.log(filePath);
+                        }
+                        
+                    $('#AddVariantImgSrc').attr('src', filePath);
+                    $('#editor2').remove(); //close the window after image is selected
+                    }
+            }).dialogelfinder('instance');
+            });
+        
+        $('#createForm').on('submit', function (e) {
+            e.preventDefault();
+            if ($(this).valid()) {
+                console.log("valid");
+                let ProductImages = new Array();
+                $('.m-2.imageContainer').each(function () {
+                    let ProductImage = {};
+                    ProductImage.ImgSrc = $(this).find('img').attr('src');
+                    ProductImages.push(ProductImage);
+                });
+
+                let ProductVariants = new Array();
+                $('.VariantData').each(function () {
+                    let ProductVariant = {};
+                    ProductVariant.Name = $(this).find('td.variant').text();
+                    ProductVariant.ProductName = $('#Name').val();
+                    ProductVariant.OriginalPrice = parseInt($(this).find('td.originalPrice').text());
+                    ProductVariant.CurrentPrice = parseInt($(this).find('td.currentPrice').text());
+                    ProductVariant.Quantity = parseInt($(this).find('td.quantity').text());
+                    ProductVariant.ImgSrc = $(this).find('img').attr('src');
+                    ProductVariants.push(ProductVariant);
+                });
+                console.log(ProductVariants);
+
+
+                let product = {};
+                product.Name = $('#Name').val();
+                product.Description = $('#Description').val();
+                product.IsHot = $('#IsHot').is(":checked");
+                product.ProductImages = ProductImages;
+                product.ProductVariants = ProductVariants;
+                console.log(product);
+                $.ajax({
+                    type: 'POST',
+                    url: "@Url.Action("Create", "Product", new {area = "Admin"})",
+                    data: product,
+                    success: function (data) {
+                        console.log(data);
+                        let url = "@Url.Action("Index", "Product", new {area = "Admin"})";
+                        location.replace(url);
+                    }
+                });
+            }          
+        });
+     
+    });
+
+
+</script>
+
+

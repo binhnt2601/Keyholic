@@ -1,0 +1,146 @@
+﻿@model IndexViewModel
+@{
+    ViewData["Title"] = "Quản lý tài khoản của bạn";
+}
+
+<div style="text-align: center">
+    <h1 class="">@ViewData["Title"]</h1>
+</div>
+<p class="text-success">@ViewData["StatusMessage"]</p>
+
+<div>
+    <hr />
+    <div class="row">
+        <div class="col-2 ml-3">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active" id="v-pills-home-tab" data-toggle="pill" data-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Thông tin cơ bản</button>
+                <button class="nav-link" id="v-pills-profile-tab" data-toggle="pill" data-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Liên kết tài khoản ngoài</button>
+                <button class="nav-link" id="v-pills-messages-tab" data-toggle="pill" data-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">Xác thực hai yếu tố</button>
+                <button class="nav-link" id="v-pills-settings-tab" data-toggle="pill" data-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Xác thực ứng dụng</button>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                    <div class="row">
+                        <div class="col-6">
+                            <h5>Thông tin cá nhân</h5>
+                            <form id="formUserInfo">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <label asp-for="@Model.profile.UserName"></label>
+                                    <input asp-for="@Model.profile.UserName" class="form-control" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="@Model.profile.UserEmail"></label>
+                                    <input asp-for="@Model.profile.UserEmail" class="form-control" disabled />
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="@Model.profile.PhoneNumber"></label>
+                                    <input asp-for="@Model.profile.PhoneNumber" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="@Model.profile.Address"></label>
+                                    <textarea asp-for="@Model.profile.Address" class="form-control"></textarea>
+                                    <span asp-validation-for="@Model.profile.Address" class="text-danger"></span>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Lưu dữ liệu</button>
+                            </form>
+
+                        </div>
+                        <div class="col-6">
+                            <h5>Mật khẩu</h5>
+                            <div class="form-group">
+                                <label>Mật khẩu:</label>
+                                @if (Model.HasPassword)
+                                {
+                                    <a class="btn btn-primary" asp-controller="Manage" asp-action="ChangePassword">Đổi mật khẩu</a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-primary" asp-controller="Manage" asp-action="SetPassword">Tạo mật khẩu</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                      
+                </div>
+                <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                    <dt class="col-sm-4">Liên kết tài khoản ngoài:</dt>
+                    <dd class="col-sm-6">
+                        Có @Model.Logins.Count liên kết. <a asp-controller="Manage" asp-action="ManageLogins">Quản lý liên kết ngoài</a>
+                    </dd>
+                </div>
+                <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
+                    <dt class="col-sm-4">Xác thực hai yếu tố:</dt>
+                    <dd class="col-sm-6">
+                        <!--<p>
+                            There are no two-factor authentication providers configured. See <a href="http://go.microsoft.com/fwlink/?LinkID=532713">this article</a>
+                            for setting up this application to support two-factor authentication.
+                        </p>-->
+                        @if (Model.TwoFactor)
+                        {
+                            <form asp-controller="Manage" asp-action="DisableTwoFactorAuthentication" method="post" class="form-horizontal" role="form">
+                                (Đang kích hoạt) <button type="submit" class="btn btn-danger btn-sm">Hủy</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="Manage" asp-action="EnableTwoFactorAuthentication" method="post" class="form-horizontal" role="form">
+                                <button type="submit" class="btn btn-primary btn-sm">Kích hoạt</button>
+                            </form>
+                        }
+                    </dd>
+                </div>
+                <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+                    <dt class="col-sm-4">Xác thực ứng dụng:</dt>
+                    <dd class="col-sm-6">
+                        @if (Model.AuthenticatorKey == null)
+                        {
+                            <form asp-controller="Manage" asp-action="ResetAuthenticatorKey" method="post" class="form-horizontal" role="form">
+                                <button type="submit" class="btn btn-sm btn-primary">Phát sinh mã</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <text>Mã xác thực là: @Model.AuthenticatorKey</text>
+                            <p>Nhập mã này khi yêu cầu xác thực 2 yếu tố</p>
+                            <form asp-controller="Manage" asp-action="GenerateRecoveryCode" method="post" class="form-horizontal" role="form">
+                                <button type="submit" class="btn btn-sm btn-primary">Phát sinh mã phục hồi</button>
+                                <p>Mã phục hồi sử dụng để xác thực hai yếu tố</p>
+                            </form>
+                        }
+                    </dd>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#formUserInfo').submit(function (e) {
+        e.preventDefault();
+   
+        let EditExtraProfileModel = {};
+        EditExtraProfileModel.Address = $('#profile_PhoneNumber').val();
+        EditExtraProfileModel.PhoneNumber = $('#profile_Address').val();
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Action("EditProfile", "Manage", new {area = "Identity"})",
+                data: EditExtraProfileModel,
+                success: function (result) {
+                swal("OK", "Đã cập nhật thông tin!", "success")
+                    .then(() => {
+                        let actionLink = "@Url.Action("Index", "Manage", new {area = "Identity"})";
+                        location.replace(actionLink);
+                    });
+                },
+                failure: function (response) {
+                    console.log('not ok');
+                }
+            });
+        
+    });
+</script>

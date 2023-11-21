@@ -1,0 +1,101 @@
+﻿@model List<Order>
+@using static BanPhimCanhCach.ExtendMethods.HtmlHelperExtend;
+
+@{
+    ViewData["Title"] = "Đơn hàng";
+}
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-2">
+            <div class="card">
+                <div class="card-header bg-secondary p-3">
+                    <strong>Trạng thái đơn hàng</strong>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li id="all" class="list-group-item">
+                        <a class="text-dark" asp-controller="Home" asp-action="UserOrder">Tất cả</a>
+                    </li>
+                    <li id="processing" class="list-group-item">
+                        <a class="text-dark" asp-controller="Home" asp-action="UserOrder" asp-route-orderStatus="@OrderStatus.Processing">Đang xử lý</a>
+                    </li>
+                    <li id="delivered" class="list-group-item">
+                        <a class="text-dark" asp-controller="Home" asp-action="UserOrder" asp-route-orderStatus="@OrderStatus.Delivered">Đã hoàn thành</a>
+                    </li>
+                    <li id="cancelled" class="list-group-item">
+                        <a class="text-dark" asp-controller="Home" asp-action="UserOrder" asp-route-orderStatus="@OrderStatus.Cancelled">Đã hủy</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+        <div class="col-lg-10 table-responsive mb-5">
+            <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Ngày đặt hàng
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th>
+                P.T. Thanh toán
+            </th>
+            <th>
+                T.T. Thanh toán
+            </th>
+            <th>
+                Tổng
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+        <tr>
+            <td>@item.OrderDate</td>
+            <td>@Html.Raw(Html.OrderStatusElement(item.Status))</td>
+            <td>@item.PaymentMethod</td>
+            <td>
+                @if(item.IsPaid)
+                {
+                    <p><i class="fas fa-circle text-success"></i> Đã thanh toán</p>
+                }
+                else
+                {
+                    <p><i class="fas fa-circle text-warning"></i> Chưa thanh toán</p>
+                }
+            </td>
+            <td>@item.TotalAmount</td>
+            <td>
+                <a class="btn btn-sm btn-info" title="Chi tiết" asp-action="UserOrderInfo" asp-route-orderId="@item.Id"><i class="fas fa-id-card" aria-hidden="true"></i></a>
+            </td>
+        </tr>
+}
+    </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    $("document").ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        let orderStatus = urlParams.get('orderStatus');
+        console.log(orderStatus);
+        switch (orderStatus) {
+            case "@Html.Raw(OrderStatus.Processing)":
+                $('#processing').addClass("list-group-item active");
+                break;
+            case "@Html.Raw(OrderStatus.Delivered)":
+                $('#delivered').addClass("list-group-item active");
+                break;
+            case "@Html.Raw(@OrderStatus.Cancelled)":
+                $('#cancelled').addClass("list-group-item active");
+                break;
+            default:
+                $('#all').addClass("list-group-item active");
+        }
+    });
+</script>

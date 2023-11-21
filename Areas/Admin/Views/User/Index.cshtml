@@ -1,0 +1,67 @@
+@model UserListModel
+@{
+    ViewData["Title"] = "Danh sách các thành viên";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="User" asp-action="Index">Thành viên</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+<div class="row" style="min-height: 450px">
+
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <partial name="_StatusMessage"></partial>
+        <p>Tổng số thành viên: @Model.totalUsers</p>
+
+        <table class="table">
+            <tr>
+                <th>Tên user</th>
+                <th>Vai trò (role)</th>
+                <th>Tác vụ</th>
+            </tr>
+            @foreach (var user in Model.users)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(user.RoleNames))
+                        {
+                            <a class="text-dark" asp-action="AddRole" asp-route-id="@user.Id">+ Thêm roles</a>
+                        }
+                        else
+                        {
+                            <a asp-action="AddRole" asp-route-id="@user.Id">@user.RoleNames</a>
+                        }
+                    </td>
+                    <td>
+                        <a class="btn btn-success btn-sm" asp-action="SetPassword" asp-route-id="@user.Id">Đặt lại mật khẩu</a>
+                    </td>
+                </tr>
+            }
+        </table>
+        @{
+            var pagingmodel = new PagingModel()
+            {
+                currentpage = Model.currentPage,
+                countpages = Model.countPages,
+                generateUrl = (int? p) => Url.Action("Index", new { p = p })
+            };
+        }
+
+        <partial name="_PagingXTL" model="@pagingmodel" />
+    </div>
+    <div class="col-md-2"></div>
+</div>
+
+

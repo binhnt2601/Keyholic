@@ -1,0 +1,95 @@
+﻿@model IEnumerable<BanPhimCanhCach.Models.Order>
+@using static BanPhimCanhCach.ExtendMethods.HtmlHelperExtend;
+
+@{
+    ViewData["Title"] = "Đơn hàng";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Order" asp-action="Index">Đơn hàng</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+
+<div class="d-flex flex-row-reverse pb-3">
+    <button type="button" id="searchBtn">Tìm kiếm</button>
+    <select id="searchFilter">
+        <option selected value="Id">Mã đơn hàng</option>
+        <option value="Name">Tên</option>
+        <option value="PhoneNumber">Số điện thoại</option>
+        <option value="Email">Email</option>   
+    </select>
+    <input type="text" placeholder="Nhập nội dung tìm kiếm" id="searchBox"/> 
+</div>
+<partial name="_StatusMessage"></partial>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Người đặt
+            </th>
+            <th>
+                Ngày đặt hàng
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th>
+                P.T. Thanh toán
+            </th>
+            <th>
+                T.T. Thanh toán
+            </th>
+            <th>
+                Tổng
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.OrderDate</td>
+            <td>@Html.Raw(Html.OrderStatusElement(item.Status))</td>
+            <td>@item.PaymentMethod</td>
+            <td>
+                @if(item.IsPaid)
+                {
+                    <p><i class="fas fa-circle text-success"></i> Đã thanh toán</p>
+                }
+                else
+                {
+                    <p><i class="fas fa-circle text-warning"></i> Chưa thanh toán</p>
+                }
+            </td>
+            <td>@item.TotalAmount</td>
+            <td>
+                 <a class="btn btn-sm btn-info" title="Chi tiết" asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-id-card" aria-hidden="true"></i></a>
+                 @if(item.Status == OrderStatus.Cancelled)
+                    {
+                        <a class="btn btn-sm btn-danger" title="Xóa" asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash" aria-hidden="true"></i></a>
+                    }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<script>
+    $('#searchBtn').on('click', function () {
+        let searchString = $('#searchBox').val();
+        let searchFilter = $('#searchFilter').val();
+        let url = "@Url.Action("Index", "Order", new {area = "Admin"})?searchString=" + searchString + "&searchFilter=" + searchFilter;
+        window.location.replace(url);
+    })
+</script>

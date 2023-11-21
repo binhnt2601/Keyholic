@@ -1,0 +1,30 @@
+﻿@model PaymentResponseModel;
+@{
+    ViewData["Title"] = "Kết quả thanh toán";
+    var result = (Model.VnPayResponseCode == "00") ? true : false;
+    var amount = ViewData["Amount"];
+}
+
+<hr />
+<div>
+    <div class="text-center">
+        <h1>@ViewData["Title"]</h1>
+    </div>
+    <div class="row" style="min-height: 450px">
+
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            @if (result)
+            {
+                <h3 class="font-weight-bold">Thành công</h3>
+                <p>Đơn hàng của bạn đã thanh toán thành công với số tiền: <strong>@amount</strong> VND</p>
+            }
+            else
+            {
+                <h3 class="font-weight-bold">Thất bại</h3>
+                <p>Xảy ra lỗi trong quá trình thanh toán. Mã lỗi <span class="font-weight-bold">@Model.VnPayResponseCode</span>. Xem chi tiết tại <a href="https://sandbox.vnpayment.vn/apis/docs/bang-ma-loi/">ĐÂY</a>.</p>
+            }
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+</div>

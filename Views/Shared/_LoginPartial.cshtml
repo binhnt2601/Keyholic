@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using BanPhimCanhCach.Models
+@using static BanPhimCanhCach.ExtendMethods.HtmlHelperExtend;
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+        <ul class="nav navbar-nav navbar-right">
+            @if (User.IsInRole(Roles.Administrator))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="Admin" asp-controller="Admin" asp-action="Index" title="Manage">Quản lý</a>
+                </li>
+            }
+            <li class="nav-item">
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">@UserManager.GetUserName(User)</a>
+                <div class="dropdown-menu rounded-0 m-0 dropdown-menu-right">
+                    <a asp-area="Identity" asp-controller="Manage" asp-action="Index" class="dropdown-item">Thông tin tài khoản</a>
+                    <a asp-action="Cart" asp-controller="Cart" class="dropdown-item">Giỏ hàng</a>
+                    <a asp-action="UserOrder" asp-controller="Home" class="dropdown-item">Đơn hàng</a>
+                    <a class="dropdown-item" asp-area="Identity" asp-controller="Account" asp-action="LogOff">Đăng xuất</a>
+                </div>
+            </div>
+            </li>
+            
+        </ul>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li class="nav-item">
+            <a class="nav-link @Html.IsActive("Register", "Account")" asp-area="Identity" asp-controller="Account" asp-action="Register">Đăng ký</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @Html.IsActive("Login", "Account")" asp-area="Identity" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+        </li>
+    </ul>
+}

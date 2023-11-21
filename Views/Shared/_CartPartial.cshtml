@@ -1,0 +1,39 @@
+﻿@using BanPhimCanhCach.Controllers;
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+@{
+    var session = HttpContextAccessor.HttpContext.Session;
+    string jsoncart = session.GetString(CartController.CARTKEY);
+
+    if (jsoncart != null)
+    {
+        var cart = JsonConvert.DeserializeObject<List<CartItem>>(jsoncart);
+        <div class="col-lg-3 col-6 text-right">
+            <a href="" class="btn border">
+                <i class="fas fa-heart text-primary"></i>
+                <span class="badge">0</span>
+            </a>
+            <a asp-action="Cart" asp-controller="Cart" class="btn border">
+                <i class="fas fa-shopping-cart text-primary"></i>
+                <span class="badge">@cart.Count</span>
+            </a>
+        </div>
+
+    }
+    else
+    {
+        <div class="col-lg-3 col-6 text-right">
+            <a href="" class="btn border">
+                <i class="fas fa-heart text-primary"></i>
+                <span class="badge">0</span>
+            </a>
+            <a asp-action="Cart" asp-controller="Cart" class="btn border">
+                <i class="fas fa-shopping-cart text-primary"></i>
+                <span class="badge">0</span>
+            </a>
+        </div>
+    }
+}

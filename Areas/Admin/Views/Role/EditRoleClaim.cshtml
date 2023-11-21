@@ -1,0 +1,59 @@
+@model EditClaimModel
+@{
+    ViewData["Title"] = "Gán đặc tính cho role";
+}
+
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Role" asp-action="Index">Vai trò</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">@Model.role.Name</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">@Model.ClaimType</a>
+        </li>
+    </ol>
+</nav>
+
+<h2>@ViewData["Title"]: @Model.role.Name</h2>
+<hr />
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+<div class="row" style="min-height: 450px">
+
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="ClaimType" class="control-label"></label>
+                <input asp-for="ClaimType" class="form-control" />
+                <span asp-validation-for="ClaimType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ClaimValue" class="control-label"></label>
+                <input asp-for="ClaimValue" class="form-control" />
+                <span asp-validation-for="ClaimValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Cập nhật" class="btn btn-primary" />
+                <input type="submit" asp-action="DeleteClaim" asp-route-claimid="@ViewBag.claimid" value="Xóa" class="btn btn-danger" />
+
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

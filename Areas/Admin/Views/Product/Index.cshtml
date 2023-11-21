@@ -1,0 +1,72 @@
+﻿@model IEnumerable<BanPhimCanhCach.Models.Product>
+
+@{
+    ViewData["Title"] = "Bàn phím";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Product" asp-action="Index">Bàn phím</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+
+<p>
+    <a class="btn btn-success btn-sm" asp-action="Create"><i class="fas fa-plus"></i> Thêm Mới</a>
+</p>
+
+<p>Tổng số sản phẩm: @ViewBag.totalProducts</p>
+<partial name="_StatusMessage"></partial>
+<table class="table text-center">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>
+                Tên SP
+            </th>
+            <th>
+                SP Hot
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    @if (item.ProductImages.Count > 0)
+                    {
+                        <img src="@item.ProductImages[0].ImgSrc" width="60px" height="60px" />
+                    }
+                    else
+                    {
+                        <img src="/contents/NoImage.jpg" width="60px" height="60px" alt="">
+                    }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsHot)
+            </td>
+            <td>
+                <a class="btn btn-sm btn-warning" title="Chỉnh sửa" asp-action="Edit" asp-route-id="@item.Id">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                </a>  
+                <a asp-action="Delete" class="btn btn-sm btn-danger" title="Xóa" asp-route-id="@item.Id">
+                        <i class="fas fa-trash" aria-hidden="true"></i> Xóa
+                </a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<partial name="_PagingXTL" model="@ViewBag.pagingModel" />

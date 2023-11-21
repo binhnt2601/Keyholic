@@ -1,0 +1,57 @@
+@model EditClaimModel
+@{
+    ViewData["Title"] = "Gán đặc tính cho role";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Role" asp-action="Index">Vai trò</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">@Model.role.Name</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">Thêm Claims</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="text-center">
+    <h1>@ViewData["Title"]: @Model.role.Name</h1>
+</div>
+<div class="row" style="min-height: 450px">
+
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <partial name="_StatusMessage"></partial>
+        <div class="col-md-6">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="ClaimType" class="control-label"></label>
+                    <input asp-for="ClaimType" class="form-control" />
+                    <span asp-validation-for="ClaimType" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ClaimValue" class="control-label"></label>
+                    <input asp-for="ClaimValue" class="form-control" />
+                    <span asp-validation-for="ClaimValue" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-roleid="@Model.role.Id">Edit role</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

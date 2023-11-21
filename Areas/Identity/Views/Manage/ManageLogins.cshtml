@@ -1,0 +1,71 @@
+﻿@model ManageLoginsViewModel
+@using Microsoft.AspNetCore.Authentication
+@{
+    ViewData["Title"] = "Liên kết tài khoản";
+}
+
+<hr />
+<div style="text-align: center">
+    <h1 class="">@ViewData["Title"]</h1>
+</div>
+@if((string)@ViewData["StatusMessage"] != string.Empty)
+{
+    <div class="alert alert-primary" role="alert">
+    @ViewData["StatusMessage"]
+</div>
+}
+
+
+<div class="row pl-4">
+    <hr />
+    <div class="col-md-6">
+        @if (Model.CurrentLogins.Count > 0)
+        {
+            <h4>Các tài khoản đã liên kết</h4>
+            <table class="table">
+                <tbody>
+                    @for (var index = 0; index < Model.CurrentLogins.Count; index++)
+                    {
+                        <tr>
+                            <td>@Model.CurrentLogins[index].ProviderDisplayName</td>
+                            <td>
+                                @if ((bool)ViewData["ShowRemoveButton"])
+                                {
+                                    <form asp-controller="Manage" asp-action="RemoveLogin" method="post" class="form-horizontal" role="form">
+                                        <div>
+                                            <input asp-for="@Model.CurrentLogins[index].LoginProvider" name="LoginProvider" type="hidden" />
+                                            <input asp-for="@Model.CurrentLogins[index].ProviderKey" name="ProviderKey" type="hidden" />
+                                            <button class="btn btn-danger" type="submit" title="Remove this @Model.CurrentLogins[index].ProviderDisplayName login from your account">Xóa</button>
+                                        </div>
+                                    </form>
+                                }
+                                else
+                                {
+                                    @: &nbsp;
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <div class="col-md-6">
+        @if (Model.OtherLogins.Count > 0)
+        {
+            <h4>Thêm liên kết với tài khoản ngoài.</h4>
+            <form asp-controller="Manage" asp-action="LinkLogin" method="post" class="form-horizontal" role="form">
+                <div id="socialLoginList">
+                    <p>
+                        @foreach (var provider in Model.OtherLogins)
+                        {
+                            <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.Name account">@provider.DisplayName</button>
+                        }
+                    </p>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+

@@ -1,0 +1,192 @@
+﻿@model Product
+
+<!-- Shop Detail Start -->
+<div class="container-fluid py-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-5 pb-5">
+            <div id="product-carousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner border">
+                    
+                        <div class="carousel-item active">
+                            <img id="activeImg" class="w-100 h-100" src="" alt="Image">
+                        </div>
+                </div>
+                <a class="carousel-control-prev" href="#product-carousel" data-slide="prev">
+                    <i class="fa fa-2x fa-angle-left text-dark"></i>
+                </a>
+                <a class="carousel-control-next" href="#product-carousel" data-slide="next">
+                    <i class="fa fa-2x fa-angle-right text-dark"></i>
+                </a>
+            </div>
+            <div class="mt-1">
+                @foreach(var img in Model.ProductImages)
+                {
+                    
+                        <img class="productImg" src="@img.ImgSrc" width="20%">
+                  
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-7 pb-5">
+            <h3 class="font-weight-semi-bold">@Model.Name</h3><small>(@Model.ViewCount Lượt xem)</small>
+            <p class="mb-4">Volup erat ipsum diam elitr rebum et dolor. Est nonumy elitr erat diam stet sit clita ea. Sanc invidunt ipsum et, labore clita lorem magna lorem ut. Erat lorem duo dolor no sea nonumy. Accus labore stet, est lorem sit diam sea et justo, amet at lorem et eirmod ipsum diam et rebum kasd rebum.</p>
+            @if (Model.ProductVariants.Count > 0)
+            {
+                <div class="d-flex mb-3">
+                    <p class="text-dark font-weight-medium mb-0 mr-3">Phân loại: </p>
+                    <form>
+                        @foreach (var variant in Model.ProductVariants)
+                        {
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" class="custom-control-input selectVariant" data-id="@variant.Id" data-price="@variant.CurrentPrice" data-inStock="@variant.Quantity" id="variant @variant.Id" data-imgSrc="@variant.ImgSrc" name="variant">
+                                <label class="custom-control-label font-weight-bold" for="variant @variant.Id">@variant.Name</label>
+                            </div>
+                        }
+                    </form>
+                </div>
+                <h3 id="productPrice" class="font-weight-semi-bold mb-4"></h3>
+                <div class="d-flex align-items-center mb-4 pt-2">
+                    <div class="input-group mr-3" style="width: 130px;">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary btn-minus-quantity">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <input disabled id="quantity" type="text" class="form-control bg-secondary text-center" value=1>
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary btn-plus-quantity">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-muted" id="inStock"></p>
+                    </div>
+                </div>
+                <button id="btnAddToCart" class="btn btn-primary px-3"><i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ hàng</button>
+            }
+            
+            <div class="d-flex pt-2">
+                <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
+                <div class="d-inline-flex">
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-pinterest"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Shop Detail End -->
+<script>
+    var item = $('.custom-control-input.selectVariant:first');
+    $('document').ready(function () {
+        let imgSrc = $('input[name="variant"]:first').attr('data-imgSrc');
+        $('#activeImg').attr('src', imgSrc);
+        item.attr('checked', 'checked');
+        let price = parseInt(item.attr('data-price'));
+        let instock = parseInt(item.attr('data-inStock'));
+        price = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        $('#productPrice').text(price);
+        $('#inStock').text(instock + ' sản phẩm có sẵn');
+        $('#quantity').attr('max', instock);
+        $('#quantity').attr('min', 1);
+        $('#quantity').attr('value', 1);
+        console.log($(this).data('id'));
+        if(instock <= 0)
+        {
+            $('#btnAddToCart').attr('disabled', true);
+        }
+        else
+        {
+            $('#btnAddToCart').data('productid', item.data('id'));
+        }
+        
+        
+    });
+    $(".btn.btn-primary.btn-plus-quantity").on('click', function () {
+        let currentQuantity = parseInt($("#quantity").val());
+        let inStock = parseInt($('#quantity').attr('max'));
+        if (currentQuantity == inStock) {
+            swal("", "Đã thêm số lượng tối đa", "warning")
+        };
+        if (currentQuantity < inStock) {
+            currentQuantity++;
+            $('#quantity').attr('value', currentQuantity);
+        }
+
+    });
+
+    $(".btn.btn-primary.btn-minus-quantity").on('click', function () {
+        let currentQuantity = parseInt($("#quantity").val());
+        if (currentQuantity > 1) {
+            currentQuantity--;
+            $('#quantity').attr('value', currentQuantity);
+        }
+    });
+
+        $('input[name="variant"]').on('change', function () {
+
+            let price = parseInt($(this).attr('data-price'));
+            let instock = parseInt($(this).attr('data-inStock'));
+            let imgSrc = $(this).attr('data-imgSrc');
+            $('#activeImg').attr('src', imgSrc);
+            price = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            $('#productPrice').text(price);
+            $('#inStock').text(instock + ' sản phẩm có sẵn');
+            $('#quantity').attr('max', instock);
+            $('#quantity').attr('min', 1);
+            $('#quantity').attr('value', 1);
+            console.log($(this).data('id'));
+            if (instock > 0) {
+                $('#btnAddToCart').attr('disabled', false);
+                $('#btnAddToCart').data('productid', $(this).data('id'));
+            }
+            else {
+            $('#btnAddToCart').attr('disabled', true);
+            }
+            
+        });
+
+    $('#btnAddToCart').on('click', function () {
+        let quantity = $('#quantity').val();
+        let id = $(this).data('productid');
+        let actionLink = "@Html.Raw(@Url.Action("AddToCart", "Cart"))?id=" + id + '&quantity='+quantity;
+        $.ajax({
+            type: 'GET',
+            url: actionLink,
+            success: function (e) {
+                swal("OK", "Đã thêm sản phẩm vào giỏ hàng", "success")
+                    .then(() => {
+                        location.reload();
+                    });   
+            },
+            failure: function (response) {
+                swal("!", "Xảy ra lỗi", "warning")
+                    .then(() => {
+                        location.reload();
+                    });;
+            }
+        });
+    });
+    
+    $('.productImg').each(function () {
+        $(this).on('click', function () {
+            
+            let imgSrc = $(this).attr('src');
+            console.log(imgSrc);
+            $('#activeImg').attr('src', imgSrc);
+        })
+        
+    })
+</script>

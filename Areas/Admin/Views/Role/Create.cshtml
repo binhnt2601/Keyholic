@@ -1,0 +1,54 @@
+@model CreateRoleModel
+@{
+    ViewData["Title"] = "Tạo role mới";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-controller="Admin" asp-area="Admin">Admin</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Role" asp-action="Index">Vai trò</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="#">Thêm mới</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+<div class="row" style="min-height: 450px">
+
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <partial name="_StatusMessage"></partial>
+        <partial name="_StatusMessage"></partial>
+        <div class="row">
+            <div class="col-md-6">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                        <a class="btn btn-primary" asp-action="Index">Danh sách các role</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
